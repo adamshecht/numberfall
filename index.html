@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Number Fall</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <h1>Number Fall</h1>
+    <p>Click (or tap) the numbers in ascending order: 1, 2, 3, ...</p>
+    <div id="info">
+      <div>Next number: <span id="next-number">1</span></div>
+      <div>Score: <span id="score">0</span></div>
+    </div>
+    <div id="play-area"></div>
+
+    <!-- Leaderboard display -->
+    <h2>Top 3 Scores</h2>
+    <ol id="leaderboard"></ol>
+
+    <div id="end-screen">
+      <h2>Game Over</h2>
+      <p id="final-score"></p>
+      <button id="restart">Play Again</button>
+    </div>
+
+    <!-- Difficulty selection screen -->
+    <div id="difficulty-screen">
+      <h2>Select Difficulty</h2>
+      <div id="difficulty-buttons">
+        <button data-difficulty="easy">Easy</button>
+        <button data-difficulty="medium">Medium</button>
+        <button data-difficulty="hard">Hard</button>
+      </div>
+    </div>
+
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
