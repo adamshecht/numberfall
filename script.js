@@ -34,7 +34,6 @@ difficultyButtons.addEventListener('click', (e) => {
 });
 
 function setDifficulty(diff) {
-  // Difficulty as previously defined
   if (diff === 'easy') {
     spawnInterval = 1500;
     fallSpeed = 1.5;
@@ -68,27 +67,56 @@ function spawnNumber() {
   if (Math.random() < 0.4) {
     num = currentNumber;
   } else {
-    // Spawn a random number (distractor)
     num = Math.floor(Math.random() * (currentNumber + 10)) + 1;
   }
+
+  // Find a non-overlapping horizontal position for the new circle
+  const xPos = findNonOverlappingX();
 
   const circle = document.createElement('div');
   circle.className = 'number-circle';
   circle.textContent = num;
 
-  const areaWidth = playArea.clientWidth;
-  const xPos = Math.floor(Math.random() * (areaWidth - 50));
   circle.style.left = xPos + 'px';
   circle.style.top = '-50px';
 
   playArea.appendChild(circle);
   
-  // This is a random spawn, not the guaranteed required instance
+  // Random spawn, not the guaranteed required instance
   numbers.push({ element: circle, number: num, y: -50, isRequiredInstance: false });
 
   circle.addEventListener('pointerdown', () => {
     onNumberClick(num, circle);
   });
+}
+
+function findNonOverlappingX() {
+  const areaWidth = playArea.clientWidth;
+  const circleWidth = 50;
+  const maxAttempts = 20;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const xPos = Math.floor(Math.random() * (areaWidth - circleWidth));
+    if (noOverlap(xPos, circleWidth)) {
+      return xPos;
+    }
+  }
+
+  // If we fail after 20 attempts, just return a random position anyway
+  return Math.floor(Math.random() * (areaWidth - circleWidth));
+}
+
+function noOverlap(xPos, circleWidth) {
+  // Check if this xPos would overlap any existing circle at spawn time
+  // Overlap if ranges intersect: [xPos, xPos+50] and [otherX, otherX+50]
+  for (let i = 0; i < numbers.length; i++) {
+    const otherX = parseInt(numbers[i].element.style.left);
+    if ( !(xPos + circleWidth < otherX || xPos > otherX + circleWidth) ) {
+      // Overlapping
+      return false;
+    }
+  }
+  return true;
 }
 
 function updateFall() {
@@ -150,12 +178,12 @@ function removeNumberByElement(element) {
 }
 
 function spawnSpecificNumber(num) {
+  const xPos = findNonOverlappingX();
+
   const circle = document.createElement('div');
   circle.className = 'number-circle';
   circle.textContent = num;
 
-  const areaWidth = playArea.clientWidth;
-  const xPos = Math.floor(Math.random() * (areaWidth - 50));
   circle.style.left = xPos + 'px';
   circle.style.top = '-50px';
 
