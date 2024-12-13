@@ -34,15 +34,15 @@ difficultyButtons.addEventListener('click', (e) => {
 });
 
 function setDifficulty(diff) {
-  // Adjust difficulties as requested: Easy is now what used to be Hard speed, then Medium, then Hard is faster.
+  // Easy now starts at previously hard speed, then scale up
   if (diff === 'easy') {
-    spawnInterval = 1500; // previously hard spawn rate
-    fallSpeed = 1.5;      // previously hard fall speed
+    spawnInterval = 1500;
+    fallSpeed = 1.5;
   } else if (diff === 'medium') {
-    spawnInterval = 1000; // faster than easy
+    spawnInterval = 1000;
     fallSpeed = 2.0;
   } else if (diff === 'hard') {
-    spawnInterval = 700;  // even faster
+    spawnInterval = 700;
     fallSpeed = 2.5;
   }
 }
@@ -63,7 +63,8 @@ function startGame() {
 function spawnNumber() {
   if (!gameRunning) return;
 
-  // 40% chance the required number appears
+  // 40% chance the required number appears as a random spawn
+  // but this one will not be the "required instance"
   let num;
   if (Math.random() < 0.4) {
     num = currentNumber;
@@ -82,9 +83,10 @@ function spawnNumber() {
   circle.style.top = '-50px';
 
   playArea.appendChild(circle);
-  numbers.push({element: circle, number: num, y: -50});
+  
+  // This is a random spawn, not the guaranteed required instance
+  numbers.push({ element: circle, number: num, y: -50, isRequiredInstance: false });
 
-  // Use pointerdown for immediate response on mobile
   circle.addEventListener('pointerdown', () => {
     onNumberClick(num, circle);
   });
@@ -99,12 +101,12 @@ function updateFall() {
     obj.element.style.top = obj.y + 'px';
 
     if (obj.y > playArea.clientHeight) {
-      // If the number that fell off is the required one, game over
-      if (obj.number === currentNumber) {
+      // Only end game if this was the required instance and matches the current required number
+      if (obj.number === currentNumber && obj.isRequiredInstance) {
         gameOver();
         return;
       } else {
-        // Just a distractor, remove it
+        // Otherwise just remove it (distractor or old instance)
         removeNumber(i);
       }
     }
@@ -122,10 +124,7 @@ function onNumberClick(num, element) {
     updateDisplays();
     adjustDifficulty();
 
-    // Remove any instances of the newly required number that might already be on the board
-    removeAllInstancesOfNumber(currentNumber);
-
-    // Spawn a fresh instance of the newly required number at the top
+    // Now spawn a new required instance for the next number
     spawnSpecificNumber(currentNumber);
 
   } else {
@@ -156,14 +155,6 @@ function removeNumberByElement(element) {
   }
 }
 
-function removeAllInstancesOfNumber(num) {
-  for (let i = numbers.length - 1; i >= 0; i--) {
-    if (numbers[i].number === num) {
-      removeNumber(i);
-    }
-  }
-}
-
 function spawnSpecificNumber(num) {
   const circle = document.createElement('div');
   circle.className = 'number-circle';
@@ -175,7 +166,9 @@ function spawnSpecificNumber(num) {
   circle.style.top = '-50px';
 
   playArea.appendChild(circle);
-  numbers.push({element: circle, number: num, y: -50});
+  
+  // This is the guaranteed required instance
+  numbers.push({ element: circle, number: num, y: -50, isRequiredInstance: true });
 
   circle.addEventListener('pointerdown', () => {
     onNumberClick(num, circle);
