@@ -34,7 +34,7 @@ difficultyButtons.addEventListener('click', (e) => {
 });
 
 function setDifficulty(diff) {
-  // Easy now starts at previously hard speed, then scale up
+  // Difficulty as previously defined
   if (diff === 'easy') {
     spawnInterval = 1500;
     fallSpeed = 1.5;
@@ -63,8 +63,7 @@ function startGame() {
 function spawnNumber() {
   if (!gameRunning) return;
 
-  // 40% chance the required number appears as a random spawn
-  // but this one will not be the "required instance"
+  // 40% chance the required number appears as a random spawn (not required instance)
   let num;
   if (Math.random() < 0.4) {
     num = currentNumber;
@@ -101,12 +100,12 @@ function updateFall() {
     obj.element.style.top = obj.y + 'px';
 
     if (obj.y > playArea.clientHeight) {
-      // Only end game if this was the required instance and matches the current required number
+      // If the number that fell off is the required instance, game over
       if (obj.number === currentNumber && obj.isRequiredInstance) {
         gameOver();
         return;
       } else {
-        // Otherwise just remove it (distractor or old instance)
+        // Otherwise remove it
         removeNumber(i);
       }
     }
@@ -124,17 +123,12 @@ function onNumberClick(num, element) {
     updateDisplays();
     adjustDifficulty();
 
-    // Now spawn a new required instance for the next number
+    // Spawn the new required instance for the next number
     spawnSpecificNumber(currentNumber);
 
   } else {
-    // Wrong number feedback
-    element.style.background = 'red';
-    setTimeout(() => {
-      if (element.parentNode) {
-        element.style.background = '#3498db';
-      }
-    }, 200);
+    // Wrong number clicked => Game Over
+    gameOver();
   }
 }
 
